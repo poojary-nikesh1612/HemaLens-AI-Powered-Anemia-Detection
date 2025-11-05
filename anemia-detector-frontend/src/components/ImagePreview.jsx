@@ -1,4 +1,3 @@
-// components/ImagePreview.jsx
 "use client";
 
 import React from "react";
@@ -14,6 +13,39 @@ const ImagePreview = ({
   imageAnalysis,
   isAnalyzing,
 }) => {
+  // Determine if the "Analyze Image" button should be disabled.
+  // It's disabled if:
+  // 1. The image is currently being analyzed (isAnalyzing).
+  // 2. The analysis object exists AND it's not valid (isValid: false), which means a major issue was found.
+  const isAnalyzeButtonDisabled =
+    isAnalyzing || (imageAnalysis && !imageAnalysis.isValid);
+
+  // Determine the style and icon for the alert box based on the status
+  let alertIcon = null;
+  let alertClass = "";
+
+  if (imageAnalysis) {
+    switch (imageAnalysis.status) {
+      case "success":
+        alertClass = "border-green-200 bg-green-50";
+        alertIcon = <CheckCircle className="h-4 w-4 text-green-600" />;
+        break;
+      case "warning":
+        alertClass = "border-orange-200 bg-orange-50";
+        alertIcon = <AlertTriangle className="h-4 w-4 text-orange-600" />;
+        break;
+      case "error":
+        alertClass = "border-red-200 bg-red-50";
+        alertIcon = <AlertTriangle className="h-4 w-4 text-red-600" />;
+        break;
+      default:
+        alertClass = "border-gray-200 bg-gray-50";
+        alertIcon = <Info className="h-4 w-4 text-gray-600" />;
+    }
+  }
+
+  // --- END: MODIFIED LOGIC ---
+
   return (
     <div className="w-full space-y-8 flex justify-center">
       <div className="my-10 w-[95%] sm:w-[70%]">
@@ -46,24 +78,20 @@ const ImagePreview = ({
                 </Alert>
               )}
 
+              {/* This section is updated to use the new status logic */}
               {imageAnalysis && !isAnalyzing && (
-                <Alert
-                  className={
-                    imageAnalysis.isValid
-                      ? "border-green-200 bg-green-50"
-                      : "border-orange-200 bg-orange-50"
-                  }
-                >
-                  {imageAnalysis.isValid ? (
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <AlertTriangle className="h-4 w-4 text-orange-600" />
-                  )}
+                <Alert className={alertClass}>
+                  {alertIcon}
                   <AlertDescription>
                     <div className="space-y-2">
                       {imageAnalysis.issues.length > 0 && (
                         <div>
-                          <strong>Issues detected:</strong>
+                          {/* Only show "Major Issue" if the status is 'error' */}
+                          <strong>
+                            {imageAnalysis.status === "error"
+                              ? "Major Issue Detected:"
+                              : "Issues:"}
+                          </strong>
                           <ul className="list-disc list-inside text-sm mt-1">
                             {imageAnalysis.issues.map((issue, index) => (
                               <li key={index}>{issue}</li>
@@ -71,16 +99,22 @@ const ImagePreview = ({
                           </ul>
                         </div>
                       )}
-                      <div>
-                        <strong>Suggestions:</strong>
-                        <ul className="list-disc list-inside text-sm mt-1">
-                          {imageAnalysis.suggestions.map(
-                            (suggestion, index) => (
-                              <li key={index}>{suggestion}</li>
-                            )
-                          )}
-                        </ul>
-                      </div>
+                      {imageAnalysis.suggestions.length > 0 && (
+                        <div>
+                          <strong>
+                            {imageAnalysis.status === "success"
+                              ? "Suggestion:"
+                              : "Suggestions:"}
+                          </strong>
+                          <ul className="list-disc list-inside text-sm mt-1">
+                            {imageAnalysis.suggestions.map(
+                              (suggestion, index) => (
+                                <li key={index}>{suggestion}</li>
+                              )
+                            )}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   </AlertDescription>
                 </Alert>
@@ -94,7 +128,8 @@ const ImagePreview = ({
             size="lg"
             className="md:w-[40%] text-lg px-8 bg-[#079eff] hover:bg-[#0384d4] cursor-pointer "
             onClick={handleAnalyse}
-            disabled={isAnalyzing}
+            // --- This is the key change to disable the button ---
+            disabled={isAnalyzeButtonDisabled}
           >
             Analyze Image
           </Button>

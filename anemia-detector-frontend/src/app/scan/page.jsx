@@ -102,35 +102,57 @@ const page = () => {
 
         const issues = [];
         const suggestions = [];
+        let status = "success";
 
+        // Issue Check 1: Darkness
         if (avgBrightness < 80 || darkRatio > 0.5) {
           issues.push("Image appears too dark");
-          suggestions.push("Try taking a photo in better lighting");
+          suggestions.push("Try taking a photo in better lighting.");
+          status = "error";
         }
+
+        // Issue Check 2: Overexposure
         if (overexposedRatio > 0.3) {
           issues.push("Image is overexposed or has flash glare");
-          suggestions.push("Avoid using flash and direct bright lights");
+          suggestions.push("Avoid using flash and direct bright lights.");
+          status = "error";
         }
+
+        // Issue Check 3: Palm not visible
         if (skinToneRatio < 0.1) {
           issues.push("Palm may not be clearly visible");
-          suggestions.push("Ensure your entire palm is in the frame");
+          suggestions.push(
+            "Ensure your entire palm is in the frame and well-lit."
+          );
+          status = "error";
+        }
+
+        // The button is "valid" ONLY if the status is 'success'
+        const isImageValidForAnalysis = status === "success";
+
+        // Set final suggestions based on status
+        let finalSuggestions;
+        if (status === "success") {
+          finalSuggestions = ["Image looks good for analysis!"];
+        } else {
+          finalSuggestions = suggestions;
         }
 
         const analysis = {
-          isValid: issues.length === 0,
-          issues,
-          suggestions:
-            issues.length === 0
-              ? ["Image looks good for analysis!"]
-              : suggestions,
+          status: status, // 'success' or 'error'
+          isValid: isImageValidForAnalysis, // This will be FALSE if any issue is found
+          issues: issues,
+          suggestions: finalSuggestions,
         };
+
         setImageAnalysis(analysis);
       } catch (error) {
         console.error("Error analyzing image:", error);
         setImageAnalysis({
-          isValid: true,
-          issues: [],
-          suggestions: ["Could not analyze quality, but you can proceed."],
+          status: "error", // Treat a code error as a blocking error
+          isValid: false,
+          issues: ["Error analyzing image quality."],
+          suggestions: ["Please try again or use a different image."],
         });
       }
       setIsAnalyzing(false);
@@ -139,7 +161,8 @@ const page = () => {
     img.onerror = () => {
       setIsAnalyzing(false);
       setImageAnalysis({
-        isValid: false,
+        status: "error", // Set status to error on load fail
+        isValid: false, // Do not allow user to proceed
         issues: ["Unable to load image"],
         suggestions: ["Please try a different image file"],
       });

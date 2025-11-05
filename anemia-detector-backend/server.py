@@ -51,7 +51,7 @@ def predict():
         
         anemic_prob = prediction[0][0]
 
-        if anemic_prob > 0.5:
+        if anemic_prob > 0.75:
             isAnemic=1
             confidence_level = float(anemic_prob * 100)
         else:
