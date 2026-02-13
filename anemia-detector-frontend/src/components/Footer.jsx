@@ -85,8 +85,8 @@ const Footer = () => {
 
           <div className=" mt-8 pt-8 text-center text-sm text-gray-600">
             <p>
-              © 2025 HemaLens. This tool is for screening purposes only and
-              should not replace professional medical advice.
+              {`© ${new Date().getFullYear()} HemaLens. This tool is for screening purposes only and
+              should not replace professional medical advice.`}
             </p>
           </div>
         </div>
