@@ -66,10 +66,10 @@ const ResultScreen = ({ image, onRetake, result }) => {
                   <p className="text-3xl font-bold ml-10 py-2">
                     {isAnemic ? "Anemic" : "Non-Anemic"}
                   </p>
-                  <div className="flex items-center gap-2 text-base text-gray-600">
+                  {/* <div className="flex items-center gap-2 text-base text-gray-600">
                     <Info className="w-4 h-4" />
                     <span>Confidence Level: {confidence_level}%</span>
-                  </div>
+                  </div> */}
                 </div>
               </CardContent>
             </Card>
